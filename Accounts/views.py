@@ -2,9 +2,10 @@ from django.shortcuts import render
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
-
+from .models import User
 # Create your views here.
-
+import json
+from django.core import serializers
 from rest_framework.authtoken.models import Token
 from .serializers import RegisterSerializer, UserSerializer, ChangePasswordSerializer
 from rest_framework.authentication import TokenAuthentication
@@ -36,6 +37,31 @@ def current_user(request):
     serializer = UserSerializer(request.user)
     return Response(serializer.data)
 
+
+
+@api_view(['GET'])
+def verify(request):
+    user = User.objects.filter(pk = request.user.id).count()
+    data = {}
+    data['authenticated'] = True
+    if user == 1:
+        user = User.objects.get(pk = request.user.id)
+        if user.is_member == True:
+            data['member'] = True
+
+        elif user.is_superuser == True:
+            data['admin'] = True
+
+        elif user.is_student == True:
+            data['student'] = True
+
+        elif user.is_teacher == True:
+            data['teacher'] = True
+    else:
+        data['authenticated'] = False
+
+    # serializer = UserSerializer(user)
+    return Response(data)
 
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
