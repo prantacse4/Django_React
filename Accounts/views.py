@@ -2,15 +2,16 @@ from django.shortcuts import render
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
-from .models import User
+from .models import *
 # Create your views here.
 import json
 from django.core import serializers
 from rest_framework.authtoken.models import Token
-from .serializers import RegisterSerializer, UserSerializer, ChangePasswordSerializer
+from .serializers import RegisterSerializer, UserSerializer, ChangePasswordSerializer, UpdateProfileSerializer
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from .permissions import IsStudent, IsAdmin, IsTeacher, IsMember
+from PIL import Image
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
@@ -63,14 +64,56 @@ def verify(request):
     # serializer = UserSerializer(user)
     return Response(data)
 
+
+@api_view(['PUT'])
 @authentication_classes([TokenAuthentication])
 @permission_classes([IsAuthenticated])
+def destroy(request):
+    user = User.objects.get(pk=request.user.id)
+    user.delete()
+    return Response(status=204)
+
+
+
+
+@api_view(['PATCH'])
+@permission_classes([IsAuthenticated])
+@authentication_classes([TokenAuthentication])
+def update_profile_pic(request):
+    profile = UserProfileImage.objects.get(user=request.user)
+    data = {}
+    try:
+        imagefile  = request.data['image']
+    except:
+        imagefile = None
+
+    if not imagefile == None:
+        try:
+            Image.open(imagefile)
+            profile.image = imagefile
+            profile.save()
+            data['success'] = 'Image Uploaded'
+        except:
+            data['error'] = 'This file is not Image'
+        
+    return Response(data)
+
+
+
+
+
+
+
 @api_view(['PUT'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
 def update_user(request):
     serializer = UserSerializer(request.user, data=request.data, partial=True)
     serializer.is_valid(raise_exception=True)
     serializer.save()
     return Response(serializer.data, status=status.HTTP_200_OK)
+
+
 
 
 

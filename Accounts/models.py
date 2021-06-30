@@ -19,3 +19,17 @@ class User(AbstractUser):
 def create_auth_token(sender, instance=None, created=False, **kwargs):
     if created:
         Token.objects.create(user=instance)
+
+
+class UserProfileImage(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    image = models.ImageField(upload_to="uploaded_image/user", blank=True, null=True)
+
+    def __str__(self):
+        return self.user.username
+
+
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+def create_dp(sender, instance=None, created=False, **kwargs):
+    if created:
+        UserProfileImage.objects.create(user=instance)
