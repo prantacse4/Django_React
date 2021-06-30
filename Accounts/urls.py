@@ -11,4 +11,6 @@ urlpatterns = [
     path('verify/', views.verify, name="verify"),
     path('destroy/', views.destroy, name="destroy"),
     path('update_profile_pic/', views.update_profile_pic, name="update_profile_pic"),
+    path('i_am_a_student/', views.i_am_a_student, name="i_am_a_student"),
+    path('i_am_a_teacher/', views.i_am_a_teacher, name="i_am_a_teacher"),
 ]

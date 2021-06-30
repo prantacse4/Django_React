@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'rest_framework',
     'Api',
     'Accounts',
+    'Classroom',
     'django_cleanup'
 
 ]

@@ -13,6 +13,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser, AllowAny
 from .permissions import IsStudent, IsAdmin, IsTeacher, IsMember
 from PIL import Image
 
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def register(request):
@@ -100,8 +101,33 @@ def update_profile_pic(request):
 
 
 
+@api_view(['PUT'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def i_am_a_teacher(request):
+    data = {}
+    user = User.objects.get(pk=request.user.id)
+    user.is_teacher = True
+    user.is_student = False
+    user.save()
+    data['success'] = 'You are Participating as a Teacher. Please complete your profile'
+    teacher = Teacher.objects.create(user=request.user)
+    teacher.save()
+    return Response(data)
 
-
+@api_view(['PUT'])
+@authentication_classes([TokenAuthentication])
+@permission_classes([IsAuthenticated])
+def i_am_a_student(request):
+    data = {}
+    user = User.objects.get(pk=request.user.id)
+    user.is_teacher = False
+    user.is_student = True
+    user.save()
+    data['success'] = 'You are Participating as a Student. Please complete your profile'
+    student = Student.objects.create(user=request.user)
+    student.save()
+    return Response(data)
 
 
 @api_view(['PUT'])
