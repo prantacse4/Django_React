@@ -37,13 +37,7 @@ class Teacher(models.Model):
 
 
 
-class MyClassroom(models.Model):
-    title = models.CharField(max_length=250)
-    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
 
-
-    def __str__(self):
-        return self.title
 
 
 
@@ -55,7 +49,6 @@ class Student(models.Model):
     batch = models.CharField(max_length=250, blank=True, null=True)
     semester = models.CharField(max_length=250, blank=True, null=True)
     university = models.CharField(max_length=250, blank=True, null=True)
-    classroom = models.ForeignKey(MyClassroom, on_delete=models.DO_NOTHING, blank=True, null=True)
 
 
     def __str__(self):
@@ -79,3 +72,18 @@ def create_dp(sender, instance=None, created=False, **kwargs):
     if created:
         UserProfileImage.objects.create(user=instance)
 
+
+
+class MyClassroom(models.Model):
+    title = models.CharField(max_length=250)
+    teacher = models.ForeignKey(Teacher, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.title
+
+class ClassStudents(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    classroom = models.ForeignKey(Teacher, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.classroom.title
