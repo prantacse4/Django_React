@@ -3,6 +3,8 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes, authentication_classes
 from .models import *
+from Accounts.models import *
+
 # Create your views here.
 import json
 from django.core import serializers
@@ -33,14 +35,21 @@ def create_classroom(request):
 
 @api_view(['POST'])
 @authentication_classes([TokenAuthentication])
-@permission_classes([IsTeacher])
+@permission_classes([IsTeacher|IsAdmin])
 def add_student(request):
     if request.method == "POST":
         serializer = AddClassSerializer(data=request.data)
+        student = request.data['student']
+        classroom = request.data['classroom']
         data = {}
-        if serializer.is_valid():
-            user = serializer.save()
-            data['response'] = "Adding Student Successful"
+
+        allCls = ClassStudents.objects.filter(classroom_id=classroom, student_id = student).count()
+        if allCls == 0:
+            if serializer.is_valid():
+                user = serializer.save()
+                data['response'] = "Adding Student Successful"
+            else:
+                data = serializer.errors
         else:
-            data = serializer.errors
+            data['error'] = 'This student is already exists'
         return Response(data)

@@ -83,7 +83,7 @@ class MyClassroom(models.Model):
 
 class ClassStudents(models.Model):
     student = models.ForeignKey(Student, on_delete=models.CASCADE)
-    classroom = models.ForeignKey(Teacher, on_delete=models.CASCADE)
+    classroom = models.ForeignKey(MyClassroom, on_delete=models.CASCADE)
 
     def __str__(self):
         return self.classroom.title
